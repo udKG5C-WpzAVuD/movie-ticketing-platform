@@ -30,9 +30,8 @@ CREATE TABLE `admin_movie_operation_logs`  (
   `operation_time` datetime NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`admin_log_id`) USING BTREE,
   INDEX `fk_admin_movie_id`(`movie_id` ASC) USING BTREE,
-  CONSTRAINT `fk_admin_movie_id` FOREIGN KEY (`movie_id`) REFERENCES `users` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+  CONSTRAINT `fk_admin_movie_id` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = DYNAMIC;
-
 -- ----------------------------
 -- Records of admin_movie_operation_logs
 -- ----------------------------
