@@ -1,0 +1,37 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/springboot_demo?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: admin
+#    密码和数据库名字改了
+  #我会改回来的  相信我
+  #如果没改   忘改了
+  #帮我改一下
+  #帮我改一下
+  #谢谢你
+  #谢谢你
+  mvc:
+    format:
+      date: yyyy-MM-dd
+
+
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  web:
+    resources:
+      static-locations: classpath:/META-INF/resources/, classpath:/resources/, classpath:/static/, classpath:/public/, file:${file-upload-path}
+server:
+  servlet:
+    encoding:
+      charset: utf-8
+
+mybatis:
+  mapper-locations: classpath:/mybatis/mapper/*.xml, classpath:/mybatis/mapper/extend/*.xml
+
+logging:
+  level:
+    com.example.mybatisplusdemo.mapper: debug
+file-upload-path: ./file
