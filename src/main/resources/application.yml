@@ -3,7 +3,7 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/movie_ticketing_platform?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
-    password: Tqing@MySQL25
+    password: 1128lxlLXL@
   mvc:
     format:
       date: yyyy-MM-dd
@@ -11,6 +11,18 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 100MB
+  mail:
+    host: smtp.qq.com
+    username: 2055346449@qq.com
+    password: ztomwtlilxbodaab
+    protocol: smtp
+    port: 587
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 server:
   servlet:
     encoding:
