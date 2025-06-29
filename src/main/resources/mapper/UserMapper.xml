@@ -17,17 +17,4 @@
         <result column="avatar_url" property="avatarUrl" />
     </resultMap>
 
-    <select id="pageList" resultType="com.example.movieticketingplatform.model.domain.User">
-        select * from users
-        <where>
-            is_deleted = 0
-            <if test="user.username != '' and user.username != null">
-                and username like '%${user.username}%'
-            </if>
-            <if test="user.role != '' and user.role != null">
-                and role like '%${user.role}%'
-            </if>
-        </where>
-    </select>
-
 </mapper>
