@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.movieticketingplatform.mapper.AdminMovieOperationLogsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.movieticketingplatform.model.domain.AdminMovieOperationLogs">
+        <id column="admin_log_id" property="adminLogId" />
+        <result column="movie_id" property="movieId" />
+        <result column="operation_type" property="operationType" />
+        <result column="operation_target_type" property="operationTargetType" />
+        <result column="operation_target_id" property="operationTargetId" />
+        <result column="operation_time" property="operationTime" />
+    </resultMap>
+
+</mapper>
