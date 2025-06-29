@@ -31,5 +31,12 @@ public class UserController {
         User user = userService.getById(id);
         return JsonResponse.success(user);
     }
+
+    @PostMapping("login")
+    public JsonResponse login(@RequestBody User user)throws  Exception{
+        User login = userService.login(user);
+        return JsonResponse.success(login);
+    }
+
 }
 
