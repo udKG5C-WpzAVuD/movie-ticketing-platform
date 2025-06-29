@@ -54,7 +54,7 @@ public class FileServiceImpl implements FileService {
             out.flush();
             Map<String, String> map = new HashMap();
             map.put("url", "./image" + relPath);
-            log.info(relPath);
+//            log.info(relPath);
             return map;
         } catch (FileNotFoundException fnfe) {
             throw fnfe;
