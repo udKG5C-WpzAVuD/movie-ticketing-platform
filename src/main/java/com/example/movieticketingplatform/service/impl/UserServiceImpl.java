@@ -15,15 +15,11 @@ import com.example.movieticketingplatform.service.OperationLogAUService;
 import org.springframework.beans.factory.annotation.Autowired;
 import com.example.movieticketingplatform.service.MailService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
-
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
-
 import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 
 
@@ -37,6 +33,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Autowired
     private OperationLogAUService operationLogAUService;
+
+    @Autowired
+    private MailService mailService;
+
+    @Autowired
+    private StringRedisTemplate redisTemplate;
 
     @Override
     public Page<User> pageList(User user, PageDTO pageDTO) {
@@ -175,13 +177,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         return isUpdated;
     }
 
-}
 
-    @Autowired
-    private MailService mailService;
 
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+
 
     // 验证码有效期：5分钟
     private static final long CODE_EXPIRE_MINUTES = 5;
@@ -201,7 +199,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public void sendRegisterCode(String email) {
         //校验邮箱不为空
-        if (!StringUtils.hasText(email)) {
+        if (!org.springframework.util.StringUtils.hasText(email)) {
             throw new IllegalArgumentException("邮箱不能为空");
         }
 
@@ -221,25 +219,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         //生成6位验证码
         String verifyCode = VerifyCodeGenerator.generate6DigitCode();
-        log.info("生成验证码：{}，邮箱：{}", verifyCode, email);
+        //log.info("生成验证码：{}，邮箱：{}", verifyCode, email);
 
         //发送验证码邮件
         try {
             mailService.sendVerifyCodeMail(email, verifyCode);
         } catch (Exception e) {
-            log.error("发送验证码邮件失败，邮箱：{}", email, e);
+            //log.error("发送验证码邮件失败，邮箱：{}", email, e);
             throw new RuntimeException("验证码发送失败，请稍后重试");
         }
 
         //缓存验证码到Redis（设置5分钟过期）
         String redisKey = CODE_REDIS_KEY_PREFIX + email;
         redisTemplate.opsForValue().set(redisKey, verifyCode, CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
-        log.info("验证码已缓存至Redis，键：{}，有效期：{}分钟", redisKey, CODE_EXPIRE_MINUTES);
+        //log.info("验证码已缓存至Redis，键：{}，有效期：{}分钟", redisKey, CODE_EXPIRE_MINUTES);
     }
     @Override
     public void register(UserRegisterDTO registerDTO) {
         // 保存用户前输出数据
-        log.info("准备注册的用户信息：{}", registerDTO);
+        //log.info("准备注册的用户信息：{}", registerDTO);
         String email = registerDTO.getEmail().trim();
         String phone = registerDTO.getPhone().trim();
         String password = registerDTO.getPassword().trim();
@@ -247,13 +245,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String username = registerDTO.getUsername().trim();
 
         // 1. 基础参数校验
-        if (!StringUtils.hasText(code)) {
+        if (!org.springframework.util.StringUtils.hasText(code)) {
             throw new IllegalArgumentException("请输入验证码");
         }
         if (password.length() < 6) {
             throw new IllegalArgumentException("密码长度不能少于6位");
         }
-        if (!StringUtils.hasText(username)) {
+        if (!org.springframework.util.StringUtils.hasText(username)) {
             throw new IllegalArgumentException("用户名不能为空");
         }
         if (username.length() < 3 || username.length() > 20) {
@@ -290,12 +288,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 7. 注册成功后删除验证码（防止重复使用）
         redisTemplate.delete(CODE_REDIS_KEY_PREFIX + email);
-        log.info("用户注册成功，邮箱：{}，手机号：{}", email, phone);
+        //log.info("用户注册成功，邮箱：{}，手机号：{}", email, phone);
     }
     @Override//发送重置验证码
     public void sendResetPasswordCode(String email) {
         // 1. 校验邮箱不为空
-        if (!StringUtils.hasText(email)) {
+        if (!org.springframework.util.StringUtils.hasText(email)) {
             throw new IllegalArgumentException("邮箱不能为空");
         }
 
@@ -315,20 +313,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         // 4. 生成6位验证码
         String verifyCode = VerifyCodeGenerator.generate6DigitCode();
-        log.info("生成密码重置验证码：{}，邮箱：{}", verifyCode, email);
+        //log.info("生成密码重置验证码：{}，邮箱：{}", verifyCode, email);
 
         // 5. 发送验证码邮件（复用邮件服务，修改标题和内容）
         try {
             mailService.sendResetPasswordCodeMail(email, verifyCode);
         } catch (Exception e) {
-            log.error("发送密码重置验证码失败，邮箱：{}", email, e);
+            //log.error("发送密码重置验证码失败，邮箱：{}", email, e);
             throw new RuntimeException("验证码发送失败，请稍后重试");
         }
 
         // 6. 缓存验证码到Redis（单独的键前缀，避免与注册验证码冲突）
         String redisKey = RESET_CODE_REDIS_KEY_PREFIX + email;
         redisTemplate.opsForValue().set(redisKey, verifyCode, CODE_EXPIRE_MINUTES, TimeUnit.MINUTES);
-        log.info("密码重置验证码已缓存，键：{}，有效期：{}分钟", redisKey, CODE_EXPIRE_MINUTES);
+        //log.info("密码重置验证码已缓存，键：{}，有效期：{}分钟", redisKey, CODE_EXPIRE_MINUTES);
     }//重置密码
     @Override
     public void resetPassword(ResetPasswordDTO resetPasswordDTO) {
@@ -337,7 +335,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         String newPassword = resetPasswordDTO.getNewPassword().trim();
 
         //基础参数校验
-        if (!StringUtils.hasText(code)) {
+        if (!org.springframework.util.StringUtils.hasText(code)) {
             throw new IllegalArgumentException("请输入验证码");
         }
         if (newPassword.length() < 6 || newPassword.length() > 20) {
@@ -372,7 +370,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         }
         //清除验证码（防止重复使用）
         redisTemplate.delete(redisKey);
-        log.info("用户密码重置成功，邮箱：{}", email);
+        //log.info("用户密码重置成功，邮箱：{}", email);
     }
 
     // 辅助方法：校验手机号是否已注册

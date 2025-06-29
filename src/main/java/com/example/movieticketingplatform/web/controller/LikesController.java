@@ -24,6 +24,22 @@ public class LikesController {
     public static class AddLikeRequest {
         private int uid;
         private int mid;
+
+        public int getUid() {
+            return uid;
+        }
+
+        public void setUid(int uid) {
+            this.uid = uid;
+        }
+
+        public int getMid() {
+            return mid;
+        }
+
+        public void setMid(int mid) {
+            this.mid = mid;
+        }
     }
     @PostMapping("addLike")
     public JsonResponse updateLikes(@RequestBody LikesController.AddLikeRequest request) {
