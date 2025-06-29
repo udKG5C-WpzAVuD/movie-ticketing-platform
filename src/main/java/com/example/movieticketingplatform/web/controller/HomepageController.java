@@ -38,6 +38,22 @@ public class HomepageController {
     public static class UpdateLikesRequest {
         private Long id;
         private Boolean isStarClicked;
+
+        public Long getId() {
+            return id;
+        }
+
+        public void setId(Long id) {
+            this.id = id;
+        }
+
+        public Boolean getIsStarClicked() {
+            return isStarClicked;
+        }
+
+        public void setIsStarClicked(Boolean starClicked) {
+            isStarClicked = starClicked;
+        }
     }
     @PatchMapping("updateLikes")
     public JsonResponse updateLikes(@RequestBody UpdateLikesRequest request) {

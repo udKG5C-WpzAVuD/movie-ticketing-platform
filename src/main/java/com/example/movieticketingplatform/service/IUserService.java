@@ -22,7 +22,7 @@ public interface IUserService extends IService<User> {
 
     @SuppressWarnings("unused")
     boolean toggleUserStatus(Long userId);
-}
+
     User login(User user);
     /**
      * 发送注册验证码到邮箱
