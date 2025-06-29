@@ -66,6 +66,5 @@ public class User implements Serializable {
     @ApiModelProperty(value = "头像URL")
     @TableField("avatar_url")
     private String avatarUrl;
-
 }
 
