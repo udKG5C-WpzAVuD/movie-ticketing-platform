@@ -2,6 +2,7 @@ package com.example.movieticketingplatform.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.example.movieticketingplatform.common.utls.SessionUtils;
 import com.example.movieticketingplatform.model.domain.PageDTO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.movieticketingplatform.common.utls.VerifyCodeGenerator;
@@ -178,9 +179,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     }
 
 
-
-
-
     // 验证码有效期：5分钟
     private static final long CODE_EXPIRE_MINUTES = 5;
     // 新增：密码重置验证码的Redis键前缀（与注册区分）
@@ -194,6 +192,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         queryWrapper.eq(User::getUsername, user.getUsername()).eq(User::getPassword, user.getPassword());
         User one = userMapper.selectOne(queryWrapper);
         System.out.println("登录查询结果：" + one);
+        SessionUtils.saveCurrentUserInfo(one);
         return one;
     }
     @Override
