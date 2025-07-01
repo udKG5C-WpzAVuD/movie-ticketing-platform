@@ -35,14 +35,14 @@ public class Seats implements Serializable {
 
         @ApiModelProperty(value = "场次ID")
     @TableField("session_id")
-    private Integer sessionId;
+    private Long sessionId;
 
         @ApiModelProperty(value = "座位编码")
     @TableField("code")
     private String code;
 
     @TableField("is_occupied")
-    private Boolean occupied;
+    private Boolean isOccupied;
 
         @ApiModelProperty(value = "更新时间")
     @TableField("update_time")

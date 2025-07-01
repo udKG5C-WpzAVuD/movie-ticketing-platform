@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/movie_ticketing_platform?useUnicode=true&characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://127.0.0.1:3306/springboot_demo?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
-    password: Tqing@MySQL25
+    password: admin
   mvc:
     format:
       date: yyyy-MM-dd

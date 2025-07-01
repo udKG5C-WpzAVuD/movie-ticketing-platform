@@ -3,7 +3,9 @@ package com.example.movieticketingplatform.web.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.movieticketingplatform.mapper.MoviesMapper;
 import com.example.movieticketingplatform.model.domain.Movies;
+import com.example.movieticketingplatform.model.domain.Seats;
 import com.example.movieticketingplatform.model.dto.SessionDTO;
+import com.example.movieticketingplatform.service.impl.SeatsServiceImpl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import com.example.movieticketingplatform.common.JsonResponse;
 import com.example.movieticketingplatform.service.ISessionsService;
 import com.example.movieticketingplatform.model.domain.Sessions;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,10 @@ public class SessionsController {
     private ISessionsService sessionsService;
     @Autowired
     private MoviesMapper moviesMapper;
+    @Autowired
+    private SeatsServiceImpl seatsServiceImpl;
+    @Autowired
+    private SeatsServiceImpl seatsService;
 
 
     /**
@@ -102,6 +107,29 @@ public class SessionsController {
         session.setCreateTime(LocalDateTime.now());
         session.setUpdateTime(LocalDateTime.now());
         sessionsService.save(session);
+
+
+//        在这儿加座位的表
+
+        for (int i = 1; i <= 10; i++) {
+            Seats seat = new Seats();
+            seat.setCode("a"+i);
+            seat.setSessionId(session.getId());
+            seatsService.save(seat);
+            System.out.println("一个座位"+seat.getCode());
+        }
+        for (int i = 1; i <= 10; i++) {
+            Seats seat = new Seats();
+            seat.setCode("b"+i);
+            seat.setSessionId(session.getId());
+            seatsService.save(seat);
+        }
+        for (int i = 1; i <= 10; i++) {
+            Seats seat = new Seats();
+            seat.setCode("c"+i);
+            seat.setSessionId(session.getId());
+            seatsService.save(seat);
+        }
 
         return JsonResponse.success(session);
     }
