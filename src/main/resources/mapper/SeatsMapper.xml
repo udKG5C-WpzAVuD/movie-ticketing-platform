@@ -7,8 +7,13 @@
         <id column="seat_id" property="seatId" />
         <result column="session_id" property="sessionId" />
         <result column="code" property="code" />
-        <result column="is_occupied" property="occupied" />
+        <result column="is_occupied" property="isOccupied" />
         <result column="update_time" property="updateTime" />
     </resultMap>
+    <select id="findBySessionId" resultType="com.example.movieticketingplatform.model.domain.Seats">
+        SELECT *
+        FROM seats
+        WHERE session_id = #{sessionId}
+    </select>
 
 </mapper>

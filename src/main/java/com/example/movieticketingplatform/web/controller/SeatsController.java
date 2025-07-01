@@ -1,5 +1,7 @@
 package com.example.movieticketingplatform.web.controller;
 
+import com.example.movieticketingplatform.model.domain.Sessions;
+import jakarta.websocket.Session;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -8,6 +10,9 @@ import org.springframework.web.bind.annotation.*;
 import com.example.movieticketingplatform.common.JsonResponse;
 import com.example.movieticketingplatform.service.ISeatsService;
 import com.example.movieticketingplatform.model.domain.Seats;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -38,6 +43,13 @@ public class SeatsController {
     public JsonResponse<Seats> getById(@PathVariable("id") Long id)throws Exception {
         Seats seats = seatsService.getById(id);
         return JsonResponse.success(seats);
+    }
+    @GetMapping("getseats")
+    public JsonResponse<List<Seats>> getAllSeats( @RequestParam Long sessionId  )throws Exception {
+
+        System.out.println("场次数据"+sessionId);
+        List<Seats> seats = seatsService.findBySessionId(sessionId);
+        return  JsonResponse.success(seats);
     }
 }
 
