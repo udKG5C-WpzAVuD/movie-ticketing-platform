@@ -19,6 +19,7 @@ import com.example.movieticketingplatform.service.IUserService;
 import com.example.movieticketingplatform.model.domain.User;
 
 import javax.xml.transform.Result;
+import java.util.List;
 import java.util.Map;
 
 import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
@@ -152,5 +153,11 @@ public class UserController {
         userService.resetPassword(resetPasswordDTO);
         return JsonResponse.success(null)
                 .setMessage("密码重置成功，请使用新密码登录");
+    }
+
+    @GetMapping("/getUsers")
+    public JsonResponse getUsers() throws Exception{
+        List<User> users = userService.getUsers();
+        return JsonResponse.success(users);
     }
 }
