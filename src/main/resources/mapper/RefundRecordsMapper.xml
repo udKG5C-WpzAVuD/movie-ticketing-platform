@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.movieticketingplatform.mapper.RefundRecordsMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.movieticketingplatform.model.domain.RefundRecords">
+        <id column="id" property="id" />
+        <result column="order_id" property="orderId" />
+        <result column="refund_no" property="refundNo" />
+        <result column="refund_amount" property="refundAmount" />
+        <result column="refund_reason" property="refundReason" />
+        <result column="refund_status" property="refundStatus" />
+        <result column="complete_time" property="completeTime" />
+        <result column="create_time" property="createTime" />
+        <result column="operate_id" property="operateId" />
+    </resultMap>
+
+</mapper>

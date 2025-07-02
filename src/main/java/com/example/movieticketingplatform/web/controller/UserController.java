@@ -20,6 +20,7 @@ import com.example.movieticketingplatform.service.IUserService;
 import com.example.movieticketingplatform.model.domain.User;
 
 import javax.xml.transform.Result;
+import java.util.List;
 import java.util.Map;
 
 import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
