@@ -48,7 +48,9 @@ public class UserController {
     public JsonResponse<User> getById(@PathVariable("id") Long id)throws Exception {
         User user = userService.getById(id);
         return JsonResponse.success(user);
-    }//登录接口
+    }
+
+    //登录接口
     @PostMapping("login")
     public JsonResponse login(@RequestBody User user) throws Exception {
         User login = userService.login(user);
