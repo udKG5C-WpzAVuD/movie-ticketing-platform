@@ -13,15 +13,6 @@ import com.example.movieticketingplatform.service.IMoviesService;
 import com.example.movieticketingplatform.model.domain.Movies;
 
 
-/**
- *
- *  前端控制器
- *
- *
- * @author lxp
- * @since 2025-06-25
- * @version v1.0
- */
 @RestController
 @RequestMapping("/api/movies")
 public class MoviesController {

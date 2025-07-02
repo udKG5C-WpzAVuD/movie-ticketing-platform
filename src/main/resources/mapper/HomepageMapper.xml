@@ -19,6 +19,7 @@
         <result column="count" property="count" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
+        <result column="price" property="price" />
     </resultMap>
     <select id="selectMovies" resultType="com.example.movieticketingplatform.model.domain.Movie">
         select * from movies
