@@ -16,4 +16,6 @@ import java.util.List;
  */
 public interface SeatsMapper extends BaseMapper<Seats> {
     List<Seats> findBySessionId(@Param("sessionId") Long sessionId);
+
+    Seats getBySessionandCode(Long sessionId, String code);
 }

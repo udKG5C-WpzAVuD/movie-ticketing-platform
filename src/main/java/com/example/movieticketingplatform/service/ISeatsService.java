@@ -16,4 +16,6 @@ import java.util.List;
 public interface ISeatsService extends IService<Seats> {
 
     List<Seats> findBySessionId(Long id);
+
+    Seats getBySessionandCode(Long sessionId, String code);
 }

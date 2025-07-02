@@ -83,5 +83,10 @@ return JsonResponse.success(movies);
         boolean update = moviesService.updateById(m);
         return JsonResponse.success(update);
     }
+    @GetMapping("getMoviesid")
+    public JsonResponse getMoviestitle(@RequestParam Long id)throws Exception {
+        Movies movies= moviesService.getById(id);
+        return JsonResponse.success(movies);
+    }
 }
 

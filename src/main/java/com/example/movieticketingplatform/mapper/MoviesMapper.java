@@ -18,4 +18,5 @@ import org.apache.ibatis.annotations.Param;
 public interface MoviesMapper extends BaseMapper<Movies> {
     Page<Movies> pageList(@Param("page")Page<Movies> page, @Param("movies") Movies movies);
 
+    Movies getByTitle(String title);
 }

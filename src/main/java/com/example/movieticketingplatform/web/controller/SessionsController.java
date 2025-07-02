@@ -65,21 +65,22 @@ public class SessionsController {
 
             for (Sessions session : sessionsList) {
                 // 查询关联的电影信息
-                Movies movie = moviesMapper.selectById(session.getMovieId());
-                if (movie == null) {
-                    continue; // 或者可以记录日志
+                if (!session.getIsDeleted()) {
+                    Movies movie = moviesMapper.selectById(session.getMovieId());
+                    if (movie == null) {
+                        continue; // 或者可以记录日志
+                    }
+
+                    // 构建DTO对象
+                    SessionDTO dto = new SessionDTO();
+                    dto.setTingnum(session.getTingnum());
+                    dto.setTime(session.getTime());
+                    dto.setTitle(movie.getTitle());
+                    dto.setSid(session.getId());
+
+                    dtoList.add(dto);
                 }
-
-                // 构建DTO对象
-                SessionDTO dto = new SessionDTO();
-                dto.setTingnum(session.getTingnum());
-                dto.setTime(session.getTime());
-                dto.setTitle(movie.getTitle());
-                dto.setSid(session.getId());
-
-                dtoList.add(dto);
             }
-
             return JsonResponse.success(dtoList);
         } catch (Exception e) {
             // 记录错误日志
@@ -106,6 +107,7 @@ public class SessionsController {
         session.setTime(dto.getTime());
         session.setCreateTime(LocalDateTime.now());
         session.setUpdateTime(LocalDateTime.now());
+        session.setIsDeleted(false);
         sessionsService.save(session);
 
 
@@ -133,7 +135,7 @@ public class SessionsController {
 
         return JsonResponse.success(session);
     }
-@PostMapping("deletescreen")
+@PutMapping("deletescreen")
     public JsonResponse deleteScreen(@RequestBody SessionDTO dto) {
     System.out.println("完整接收到的DTO: " + dto);
     System.out.println("数据在这儿"+dto.getTingnum());
@@ -146,12 +148,15 @@ public class SessionsController {
     if (session == null) {
         return JsonResponse.failure("未找到对应的电影");
     }
-    int deleted = sessionsService.deleteSession(session);
-    if (deleted==1) {
-        return JsonResponse.success("排片删除成功");
-    } else {
-        return JsonResponse.failure("未找到该排片记录");
-    }
+    session.setIsDeleted(true);
+    sessionsService.updateById(session);
+    return JsonResponse.success(session);
+}
+@GetMapping("getSessionsByid")
+    public JsonResponse getSessionsByid(@RequestParam Long sessionId) throws Exception {
+    System.out.println("我来啦"+sessionId);
+        Sessions session = sessionsService.getById(sessionId);
+        return JsonResponse.success(session);
 }
 }
 

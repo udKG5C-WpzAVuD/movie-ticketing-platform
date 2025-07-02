@@ -10,6 +10,7 @@
         <result column="time" property="time" />
         <result column="create_time" property="createTime" />
         <result column="update_time" property="updateTime" />
+        <result column="is_deleted" property="isDeleted"/>
     </resultMap>
 
 </mapper>

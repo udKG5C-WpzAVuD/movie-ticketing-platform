@@ -15,5 +15,11 @@
         FROM seats
         WHERE session_id = #{sessionId}
     </select>
+    <select id="getBySessionandCode" resultType="com.example.movieticketingplatform.model.domain.Seats">
+        SELECT *
+        FROM seats
+        WHERE session_id = #{sessionId}
+          AND code = #{code}
+    </select>
 
 </mapper>

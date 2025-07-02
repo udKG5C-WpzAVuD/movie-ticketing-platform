@@ -24,4 +24,9 @@ public class SeatsServiceImpl extends ServiceImpl<SeatsMapper, Seats> implements
         // 调用baseMapper执行自定义SQL
         return baseMapper.findBySessionId(sessionId);
     }
+
+    @Override
+    public Seats getBySessionandCode(Long sessionId, String code) {
+        return baseMapper.getBySessionandCode(sessionId,code);
+    }
 }

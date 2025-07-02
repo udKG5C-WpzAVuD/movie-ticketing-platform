@@ -53,6 +53,8 @@ public class Sessions implements Serializable {
         @ApiModelProperty(value = "更新时间")
     @TableField("update_time")
     private LocalDateTime updateTime;
-
+    @ApiModelProperty(value = "是否删除")
+    @TableField("is_deleted")
+    private Boolean isDeleted;
 
 }

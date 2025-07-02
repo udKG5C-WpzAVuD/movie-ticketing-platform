@@ -1,6 +1,7 @@
 package com.example.movieticketingplatform.web.controller;
 
 import com.example.movieticketingplatform.model.domain.Sessions;
+import com.example.movieticketingplatform.model.dto.SeatsDTO;
 import jakarta.websocket.Session;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.slf4j.Logger;
@@ -50,6 +51,32 @@ public class SeatsController {
         System.out.println("场次数据"+sessionId);
         List<Seats> seats = seatsService.findBySessionId(sessionId);
         return  JsonResponse.success(seats);
+    }
+    @PostMapping("updateSeats")
+    public JsonResponse updateSeats(@RequestBody List<Seats> S)throws Exception {
+        int count=0;
+        System.out.println("我来啦"+S.size());
+        for (Seats seats : S) {
+            seats.setIsOccupied(true);
+            boolean save=seatsService.updateById(seats);
+            if(!save){
+                count++;
+            }
+        }
+        if(count>0){
+            return JsonResponse.failure("传输失败");
+        }else {
+            return JsonResponse.success(count);
+        }
+    }
+    @PutMapping("deleteSeats")
+    public JsonResponse deleteSeats(@RequestBody SeatsDTO seatsDTO)throws Exception {
+        System.out.println("删除数据"+seatsDTO.getCode());
+        System.out.println(seatsDTO.getSessionId());
+        Seats seats = seatsService.getBySessionandCode(seatsDTO.getSessionId(),seatsDTO.getCode());
+        seats.setIsOccupied(false);
+        seatsService.updateById(seats);
+        return JsonResponse.success(seats);
     }
 }
 

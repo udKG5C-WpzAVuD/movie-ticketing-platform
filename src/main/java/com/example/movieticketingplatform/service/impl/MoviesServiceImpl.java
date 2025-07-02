@@ -33,5 +33,7 @@ public class MoviesServiceImpl extends ServiceImpl<MoviesMapper, Movies> impleme
         page = moviesMapper.pageList(page,m);
         return page;
     }
+
+
 }
 
