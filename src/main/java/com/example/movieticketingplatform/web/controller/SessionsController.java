@@ -3,7 +3,9 @@ package com.example.movieticketingplatform.web.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.movieticketingplatform.mapper.MoviesMapper;
 import com.example.movieticketingplatform.model.domain.Movies;
+import com.example.movieticketingplatform.model.domain.Seats;
 import com.example.movieticketingplatform.model.dto.SessionDTO;
+import com.example.movieticketingplatform.service.impl.SeatsServiceImpl;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 import com.example.movieticketingplatform.common.JsonResponse;
 import com.example.movieticketingplatform.service.ISessionsService;
 import com.example.movieticketingplatform.model.domain.Sessions;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,6 +38,10 @@ public class SessionsController {
     private ISessionsService sessionsService;
     @Autowired
     private MoviesMapper moviesMapper;
+    @Autowired
+    private SeatsServiceImpl seatsServiceImpl;
+    @Autowired
+    private SeatsServiceImpl seatsService;
 
 
     /**
@@ -103,6 +108,29 @@ public class SessionsController {
         session.setUpdateTime(LocalDateTime.now());
         sessionsService.save(session);
 
+
+//        在这儿加座位的表
+
+        for (int i = 1; i <= 10; i++) {
+            Seats seat = new Seats();
+            seat.setCode("a"+i);
+            seat.setSessionId(session.getId());
+            seatsService.save(seat);
+            System.out.println("一个座位"+seat.getCode());
+        }
+        for (int i = 1; i <= 10; i++) {
+            Seats seat = new Seats();
+            seat.setCode("b"+i);
+            seat.setSessionId(session.getId());
+            seatsService.save(seat);
+        }
+        for (int i = 1; i <= 10; i++) {
+            Seats seat = new Seats();
+            seat.setCode("c"+i);
+            seat.setSessionId(session.getId());
+            seatsService.save(seat);
+        }
+
         return JsonResponse.success(session);
     }
 @PostMapping("deletescreen")
@@ -125,6 +153,38 @@ public class SessionsController {
         return JsonResponse.failure("未找到该排片记录");
     }
 }
+    /**
+     * 根据场次ID获取场次详情（包含电影信息）
+     */
+    @GetMapping("/{id}")
+    public JsonResponse<SessionDTO> getSessionById(@PathVariable("id") Long id) {
+        try {
+            // 查询场次信息
+            Sessions session = sessionsService.getById(id);
+            if (session == null) {
+                return JsonResponse.failure("未找到该场次");
+            }
+
+            // 查询关联的电影信息
+            Movies movie = moviesMapper.selectById(session.getMovieId());
+            if (movie == null) {
+                return JsonResponse.failure("未找到该场次关联的电影");
+            }
+
+            // 构建DTO返回
+            SessionDTO dto = new SessionDTO();
+            dto.setSid(session.getId());
+            dto.setTingnum(session.getTingnum());
+            dto.setTime(session.getTime());
+            dto.setTitle(movie.getTitle());
+            dto.setPosterUrl(movie.getPosterUrl()); // 补充电影海报URL
+
+            return JsonResponse.success(dto);
+        } catch (Exception e) {
+            logger.error("获取场次详情失败", e);
+            return JsonResponse.failure("获取场次详情失败: " + e.getMessage());
+        }
+    }
 }
 
 
