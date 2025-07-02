@@ -45,7 +45,7 @@ public class Orders implements Serializable {
 
         @ApiModelProperty(value = "场次ID")
     @TableField("session_id")
-    private Integer sessionId;
+    private Long sessionId;
 
         @ApiModelProperty(value = "订单总金额")
     @TableField("total_amount")
@@ -79,7 +79,7 @@ public class Orders implements Serializable {
     @TableField("update_time")
     private LocalDateTime updateTime;
 
-        @ApiModelProperty(value = "订单座位")
+        @ApiModelProperty(value = "座位编号")
     @TableField("code")
     private String code;
 
