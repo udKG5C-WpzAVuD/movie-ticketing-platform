@@ -85,6 +85,7 @@ public class Movie implements Serializable {
 
     @ApiModelProperty(value = "更新时间")
     @TableField("update_time")
+    
     private LocalDateTime updateTime;
     @ApiModelProperty(value = "价格")
     @TableField("price")

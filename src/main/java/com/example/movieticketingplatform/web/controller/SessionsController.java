@@ -158,6 +158,38 @@ public class SessionsController {
         Sessions session = sessionsService.getById(sessionId);
         return JsonResponse.success(session);
 }
+    /**
+     * 根据场次ID获取场次详情（包含电影信息）
+     */
+    @GetMapping("/{id}")
+    public JsonResponse<SessionDTO> getSessionById(@PathVariable("id") Long id) {
+        try {
+            // 查询场次信息
+            Sessions session = sessionsService.getById(id);
+            if (session == null) {
+                return JsonResponse.failure("未找到该场次");
+            }
+
+            // 查询关联的电影信息
+            Movies movie = moviesMapper.selectById(session.getMovieId());
+            if (movie == null) {
+                return JsonResponse.failure("未找到该场次关联的电影");
+            }
+
+            // 构建DTO返回
+            SessionDTO dto = new SessionDTO();
+            dto.setSid(session.getId());
+            dto.setTingnum(session.getTingnum());
+            dto.setTime(session.getTime());
+            dto.setTitle(movie.getTitle());
+            dto.setPosterUrl(movie.getPosterUrl()); // 补充电影海报URL
+
+            return JsonResponse.success(dto);
+        } catch (Exception e) {
+            logger.error("获取场次详情失败", e);
+            return JsonResponse.failure("获取场次详情失败: " + e.getMessage());
+        }
+    }
 }
 
 

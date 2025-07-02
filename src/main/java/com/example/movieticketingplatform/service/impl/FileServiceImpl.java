@@ -1,5 +1,7 @@
 package com.example.movieticketingplatform.service.impl;
 
+
+
 import com.example.movieticketingplatform.service.FileService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -7,9 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -18,38 +23,55 @@ import java.util.UUID;
 @Service
 public class FileServiceImpl implements FileService {
 
-    @Value("${file-upload-path}") // 示例: ./ （开发环境）或 /var/www/（生产环境）
-    private String baseDir;
+    private static final SimpleDateFormat SDF = new SimpleDateFormat("yyyyMM");
+
+    @Value("${file-upload-path}")
+    private String fileUploadPath;
 
     @Override
-    public Map<String, String> upload(MultipartFile file) throws IOException {
-       // 修正路径拼接方式
-        String storageDir = Paths.get(baseDir,  "image").toString() + File.separator;
-        return storeFile(file, storageDir);
+    public Map upload(MultipartFile file) throws IOException {
+        Map<String, String> map = storeFile(file, Paths.get(fileUploadPath, "image").toString());
+        return map;
     }
 
-    private Map<String, String> storeFile(MultipartFile file, String storageDir) throws IOException {
-        // 生成唯一文件名
-        String originalFilename = file.getOriginalFilename();
-        String fileExtension = originalFilename.substring(originalFilename.lastIndexOf('.'));
-        String uniqueFilename = UUID.randomUUID() + fileExtension; // 如 886f3fc0.jpg
+    private static Map<String, String> storeFile(MultipartFile file, String fileUploadPath) throws IOException {
 
-        // 确保目录存在
-        File dir = new File(storageDir);
-        if (!dir.exists()) {
-            dir.mkdirs();
+        String yearMonth = SDF.format(new Date());//当前年月
+        //String random = "" + (int) (Math.random() * 1000);//随机4位数,没补0
+        String fileName = file.getOriginalFilename();//文件全名
+        String suffix = suffix(fileName);//文件后缀
+        String relPath = "/" + yearMonth + "/" + "-" + UUID.randomUUID().toString().replaceAll("-","") + suffix;
+        String toPath = fileUploadPath + relPath;
+        FileOutputStream out = null;
+
+        File toFile = new File(toPath).getParentFile();
+        if (!toFile.exists()) {
+            toFile.mkdirs(); //自动创建目录
         }
-
-        // 保存文件
-        String filePath = storageDir + uniqueFilename;
-        try (FileOutputStream out = new FileOutputStream(filePath)) {
+        try {
+            out = new FileOutputStream(toPath);
             out.write(file.getBytes());
+            out.flush();
+            Map<String, String> map = new HashMap();
+            map.put("url", "/image" + relPath);
+//            log.info(relPath);
+            return map;
+        } catch (FileNotFoundException fnfe) {
+            throw fnfe;
+        } catch (IOException ioe) {
+            throw ioe;
+        } finally {
+            if (out != null) {
+                out.close();
+            }
         }
+    }
 
-        // 返回统一访问路径（不含物理路径前缀）
-        Map<String, String> result = new HashMap<>();
-        result.put("url", "/image/" + uniqueFilename);
-        log.info("文件存储路径：{}，访问URL：{}", filePath, result.get("url"));
-        return result;
+    /**
+     * 后缀名或empty："a.png" => ".png"
+     */
+    private static String suffix(String fileName) {
+        int i = fileName.lastIndexOf('.');
+        return i == -1 ? "" : fileName.substring(i);
     }
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.movieticketingplatform.mapper.CommentMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.example.movieticketingplatform.model.domain.Comment">
+        <id column="id" property="id" />
+        <result column="user_id" property="userId" />
+        <result column="content" property="content" />
+        <result column="status" property="status" />
+        <result column="category" property="category" />
+        <result column="reply" property="reply" />
+        <result column="create_time" property="createTime" />
+        <result column="update_time" property="updateTime" />
+    </resultMap>
+    <insert id="insertComment">
+        insert into comment (user_id, content, category, create_time, update_time)
+        values (#{uid}, #{content}, #{category}, #{date}, #{date})
+    </insert>
+    <update id="updateReply">
+        update `comment`
+        set
+            reply = #{reply},
+            update_time = #{date}
+        where
+            id = #{id}
+    </update>
+    <update id="updateStatus">
+        update `comment`
+        set
+            status = 'SOLVED',
+            update_time = #{date}
+        where
+            id = #{id}
+    </update>
+    <select id="getCommentPage" resultType="com.example.movieticketingplatform.model.domain.Comment">
+        select * from comment
+        where user_id like '%${com.id}%'
+        order by update_time desc
+    </select>
+    <select id="getUnsolvedComments" resultType="com.example.movieticketingplatform.model.domain.Comment">
+        select * from comment
+        where status = 'UNSOLVED'
+    </select>
+    <select id="getAllCommentPage" resultType="com.example.movieticketingplatform.model.domain.Comment">
+        select * from comment
+        <where>
+            <if test="com.category != '' and com.category != null">
+                category = #{com.category}
+            </if>
+            <if test="com.status != '' and com.status != null">
+                and status = #{com.status}
+            </if>
+        </where>
+        order by create_time desc
+    </select>
+
+</mapper>
