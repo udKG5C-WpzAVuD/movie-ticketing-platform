@@ -35,6 +35,7 @@ public class CommentController {
         private int uid;
         private String content;
         private String category;
+
     }
     @PostMapping("addComment")
     public JsonResponse addComment(@RequestBody CommentController.AddCommentRequest request) throws Exception {
