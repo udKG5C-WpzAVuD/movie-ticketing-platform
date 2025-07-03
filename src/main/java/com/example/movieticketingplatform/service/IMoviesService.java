@@ -19,4 +19,6 @@ public interface IMoviesService extends IService<Movies> {
 
 
     Page<Movies> pageList(Movies m, PageDTO pageDTO);
+
+
 }

@@ -13,15 +13,6 @@ import com.example.movieticketingplatform.service.IMoviesService;
 import com.example.movieticketingplatform.model.domain.Movies;
 
 
-/**
- *
- *  前端控制器
- *
- *
- * @author lxp
- * @since 2025-06-25
- * @version v1.0
- */
 @RestController
 @RequestMapping("/api/movies")
 public class MoviesController {
@@ -82,6 +73,11 @@ return JsonResponse.success(movies);
         System.out.println("看这儿："+m.getTitle()+m.getIsDeleted()+m.getIsPutaway());
         boolean update = moviesService.updateById(m);
         return JsonResponse.success(update);
+    }
+    @GetMapping("getMoviesid")
+    public JsonResponse getMoviestitle(@RequestParam Long id)throws Exception {
+        Movies movies= moviesService.getById(id);
+        return JsonResponse.success(movies);
     }
 }
 
