@@ -3,11 +3,13 @@ package com.example.movieticketingplatform.service.impl;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.example.movieticketingplatform.common.utls.SessionUtils;
+import com.example.movieticketingplatform.mapper.UserActivityMapper;
 import com.example.movieticketingplatform.model.domain.PageDTO;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.movieticketingplatform.common.utls.VerifyCodeGenerator;
 import com.example.movieticketingplatform.model.domain.User;
 import com.example.movieticketingplatform.mapper.UserMapper;
+import com.example.movieticketingplatform.model.domain.UserActivity;
 import com.example.movieticketingplatform.model.domain.dto.ResetPasswordDTO;
 import com.example.movieticketingplatform.model.domain.dto.UserRegisterDTO;
 import com.example.movieticketingplatform.service.IUserService;
@@ -20,11 +22,12 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import static net.sf.jsqlparser.util.validation.metadata.NamedObject.user;
 
 
 @Service
@@ -34,6 +37,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private UserActivityMapper userActivityMapper;
 
     @Autowired
     private OperationLogAUService operationLogAUService;
@@ -98,6 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 记录用户信息变更日志
      */
     private void logUserChanges(User originalUser, User updatedUser) {
+
 
         // 获取当前登录用户的完整信息（使用 SessionUtils.getCurrentUserInfo()）
         User currentUser = SessionUtils.getCurrentUserInfo();
@@ -196,11 +203,46 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
     @Override
     public User login(User user) {
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(User::getUsername, user.getUsername()).eq(User::getPassword, user.getPassword());
-        User one = userMapper.selectOne(queryWrapper);
-        System.out.println("登录查询结果：" + one);
-        SessionUtils.saveCurrentUserInfo(one);
-        return one;
+        queryWrapper.eq(User::getUsername, user.getUsername())
+                .eq(User::getPassword, user.getPassword());
+        User loggedInUser = userMapper.selectOne(queryWrapper);
+
+        if (loggedInUser != null) {
+            User updateUser = new User();
+            updateUser.setId(loggedInUser.getId());
+            updateUser.setLastLoginTime(LocalDateTime.now()); // 使用 LocalDateTime
+            userMapper.updateById(updateUser);
+
+            if(loggedInUser.getRole().equals("USER")){
+                // 在用户活跃度表中更新登录次数等
+                LambdaQueryWrapper<UserActivity> activityQueryWrapper = new LambdaQueryWrapper<>();
+                activityQueryWrapper.eq(UserActivity::getUserId, loggedInUser.getId());
+                UserActivity userActivity = userActivityMapper.selectOne(activityQueryWrapper);
+
+                if (userActivity != null) {
+                    // 如果记录存在，更新登录次数和活跃时间
+                    userActivity.setLoginCount(userActivity.getLoginCount() + 1);
+                    userActivity.setGmtModified(LocalDateTime.now());
+                    userActivity.setLastActiveTime(LocalDateTime.now());
+                    userActivityMapper.updateById(userActivity);
+                }else {
+                    // 如果记录不存在，初始化新记录
+                    userActivity = new UserActivity();
+                    userActivity.setUserId(loggedInUser.getId());
+                    userActivity.setLoginCount(1);
+                    userActivity.setPurchaseCount(0);
+                    userActivity.setTotalSpent(BigDecimal.ZERO);
+                    userActivity.setGmtCreated(LocalDateTime.now());
+                    userActivity.setGmtModified(LocalDateTime.now());
+                    userActivity.setLastActiveTime(LocalDateTime.now());
+                    userActivityMapper.insert(userActivity);
+                }
+            }
+
+            SessionUtils.saveCurrentUserInfo(loggedInUser);
+        }
+
+        return loggedInUser;
     }
     @Override
     public void sendRegisterCode(String email) {
@@ -295,6 +337,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         // 7. 注册成功后删除验证码（防止重复使用）
         redisTemplate.delete(CODE_REDIS_KEY_PREFIX + email);
         //log.info("用户注册成功，邮箱：{}，手机号：{}", email, phone);
+
+        // 注册成功后在user_activity表里新增记录
+        UserActivity userActivity = new UserActivity();
+        userActivity.setUserId(user.getId());
+        userActivity.setLoginCount(0);
+        userActivity.setPurchaseCount(0);
+        userActivity.setTotalSpent(BigDecimal.valueOf(0));
+        userActivity.setGmtCreated(user.getRegistrationTime());
+        userActivity.setGmtModified(user.getRegistrationTime());
+        userActivityMapper.insert(userActivity);
+
     }
     @Override//发送重置验证码
     public void sendResetPasswordCode(String email) {
@@ -377,6 +430,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         //清除验证码（防止重复使用）
         redisTemplate.delete(redisKey);
         //log.info("用户密码重置成功，邮箱：{}", email);
+    }
+
+    @Override
+    public List<User> getUsers() {
+        List<User> users = userMapper.selectUsers();
+        return users!= null ? users : new ArrayList<>();
     }
 
     // 辅助方法：校验手机号是否已注册

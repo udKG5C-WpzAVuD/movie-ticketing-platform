@@ -47,4 +47,6 @@ public interface IUserService extends IService<User> {
     void resetPassword(ResetPasswordDTO resetPasswordDTO);
 
     List<User> listAllUsers();
+
+    List<User> getUsers();
 }

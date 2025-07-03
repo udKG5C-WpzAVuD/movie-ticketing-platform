@@ -10,14 +10,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-/**
- * <p>
- * 电影信息表 服务实现类
- * </p>
- *
- * @author lxp
- * @since 2025-06-25
- */
 
 @Service
 public class MoviesServiceImpl extends ServiceImpl<MoviesMapper, Movies> implements IMoviesService {

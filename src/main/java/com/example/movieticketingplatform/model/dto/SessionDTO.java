@@ -9,6 +9,7 @@ public class SessionDTO {
     private String title;
     private Integer tingnum;
     private Long sid;
+    private String posterUrl;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
 
     private LocalDateTime time;
@@ -43,5 +44,13 @@ public class SessionDTO {
 
     public void setTime(LocalDateTime time) {
         this.time = time;
+    }
+
+    public String getPosterUrl() {
+        return posterUrl;
+    }
+
+    public void setPosterUrl(String posterUrl) {
+        this.posterUrl = posterUrl;
     }
 }

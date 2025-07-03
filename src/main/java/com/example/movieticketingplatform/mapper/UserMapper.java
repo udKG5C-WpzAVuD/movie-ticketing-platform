@@ -12,7 +12,10 @@ import java.util.Map;
 
 
 public interface UserMapper extends BaseMapper<User> {
+
     Page<User> pageList(@Param("page") Page<User> page, @Param("user") User user);
+
+    List<User> selectUsers();
 
     /**
      *  统计给定日期范围内的新注册用户数量

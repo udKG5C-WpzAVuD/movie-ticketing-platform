@@ -55,4 +55,5 @@ public interface MoviesMapper extends BaseMapper<Movies> {
             "ORDER BY update_date")
     List<Map<String, Object>> selectMovieCountsByDateRange(@Param("startDate") LocalDate startDate,
                                                            @Param("endDate") LocalDate endDate);
+    Movies getByTitle(String title);
 }

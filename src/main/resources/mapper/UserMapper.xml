@@ -32,5 +32,9 @@
             </if>
         </where>
     </select>
+    <select id="selectUsers" resultType="com.example.movieticketingplatform.model.domain.User">
+        select * from users
+        where is_deleted = 0 and role = 'USER'
+    </select>
 
 </mapper>
