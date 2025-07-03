@@ -62,6 +62,12 @@ public class OrdersController {
        List<Orders> orders= ordersService.getByOrderNo(orderNo);
         return JsonResponse.success(orders);
     }
+    @GetMapping("searchOrdersBysid")
+    public JsonResponse searchOrdersBysid(@RequestParam("sessionId") Long sessionId)throws Exception {
+        System.out.println("劲来了"+sessionId);
+        List<Orders> orders=ordersService.getBysid(sessionId);
+        return JsonResponse.success(orders);
+    }
     @GetMapping("fetchOrders")
     public JsonResponse fetchOrders()throws Exception {
         List<Orders> orders= ordersService.list();

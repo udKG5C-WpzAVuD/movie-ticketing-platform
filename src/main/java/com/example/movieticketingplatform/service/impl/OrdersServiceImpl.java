@@ -2,6 +2,7 @@ package com.example.movieticketingplatform.service.impl;
 
 import com.alipay.api.AlipayClient;
 import com.alipay.api.DefaultAlipayClient;
+import com.baomidou.mybatisplus.core.toolkit.Assert;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.request.AlipayTradeRefundRequest;
@@ -260,6 +261,23 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
 
         return refundRecord;
     }
+
+    @Override
+    public List<Orders> getBysid(Long sessionId) {
+        // 参数校验
+        Assert.notNull(sessionId, "sessionId不能为空");
+        Assert.isTrue(sessionId > 0, "sessionId必须大于0");
+
+        // 构建查询条件
+        LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(Orders::getSessionId, sessionId);
+
+        // 执行查询
+        List<Orders> ordersList = ordersMapper.selectList(queryWrapper);
+        System.out.println("根据sessionId[" + sessionId + "]查询到" + ordersList.size() + "条订单记录");
+        return ordersList;
+    }
+
 
 
     // 辅助方法：创建初始退款记录
