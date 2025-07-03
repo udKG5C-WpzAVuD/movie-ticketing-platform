@@ -33,25 +33,22 @@ public class ReportService {
         ReportData reportData = new ReportData();
 
         // 新注册用户
-        // 强制转换为 int
         int newUserCount = usersMapper.selectCount(new QueryWrapper<User>()
                 .ge("registration_time", startDate)
                 .le("registration_time", endDate)).intValue();
         reportData.setNewUserCount(newUserCount);
 
         // 订单总量
-        // 强制转换为 int
         int orderCount = ordersMapper.selectCount(new QueryWrapper<Orders>()
                 .ge("create_time", startDate)
                 .le("create_time", endDate)).intValue();
         reportData.setOrderCount(orderCount);
 
-        // 总票房
-        Double totalRevenue = ordersMapper.selectTotalAmount(startDate,endDate);
+        // 总票房 - 注意这里要除以100，
+        Double totalRevenue = ordersMapper.selectTotalAmount(startDate, endDate);
         reportData.setTotalRevenue(totalRevenue != null ? totalRevenue / 100 : 0.0);
 
         // 上架电影总数
-        // 强制转换为 int
         int movieCount = moviesMapper.selectCount(new QueryWrapper<Movies>()
                 .ge("update_time", startDate)
                 .le("update_time", endDate)

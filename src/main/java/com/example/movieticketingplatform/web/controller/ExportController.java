@@ -83,17 +83,19 @@ public class ExportController {
                 }
                 filename = "订单详情";
                 headers.put("id", "订单ID");
-                headers.put("orderNo", "订单号");
+                headers.put("orderNo", "订单编号");
                 headers.put("userId", "用户ID");
                 headers.put("sessionId", "场次ID");
-                headers.put("totalAmount", "总金额");
+                headers.put("totalAmount", "总金额(元)");
                 headers.put("contactPhone", "联系电话");
+                headers.put("orderStatus", "订单状态");
                 headers.put("paymentMethod", "支付方式");
                 headers.put("paymentTime", "支付时间");
                 headers.put("paymentTransactionId", "支付交易号");
                 headers.put("createTime", "创建时间");
                 headers.put("updateTime", "更新时间");
                 headers.put("code", "座位号");
+
                 if ("excel".equalsIgnoreCase(exportFormat)) {
                     fileBytes = ExportUtil.exportExcel(orders, headers);
                     contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
