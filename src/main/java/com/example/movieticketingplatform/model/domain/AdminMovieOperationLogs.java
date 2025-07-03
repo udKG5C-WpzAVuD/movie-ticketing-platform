@@ -48,5 +48,51 @@ public class AdminMovieOperationLogs implements Serializable {
     @TableField("operation_time")
     private LocalDateTime operationTime;
 
+    public Integer getAdminLogId() {
+        return adminLogId;
+    }
 
+    public void setAdminLogId(Integer adminLogId) {
+        this.adminLogId = adminLogId;
+    }
+
+    public Long getMovieId() {
+        return movieId;
+    }
+
+    public void setMovieId(Long movieId) {
+        this.movieId = movieId;
+    }
+
+    public String getOperationType() {
+        return operationType;
+    }
+
+    public void setOperationType(String operationType) {
+        this.operationType = operationType;
+    }
+
+    public String getOperationTargetType() {
+        return operationTargetType;
+    }
+
+    public void setOperationTargetType(String operationTargetType) {
+        this.operationTargetType = operationTargetType;
+    }
+
+    public Long getOperationTargetId() {
+        return operationTargetId;
+    }
+
+    public void setOperationTargetId(Long operationTargetId) {
+        this.operationTargetId = operationTargetId;
+    }
+
+    public LocalDateTime getOperationTime() {
+        return operationTime;
+    }
+
+    public void setOperationTime(LocalDateTime operationTime) {
+        this.operationTime = operationTime;
+    }
 }

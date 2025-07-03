@@ -104,8 +104,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
      * 记录用户信息变更日志
      */
     private void logUserChanges(User originalUser, User updatedUser) {
-        Long currentUserId = 1L; // 临时设置为1，登录功能实现后替换
 
+
+        // 获取当前登录用户的完整信息（使用 SessionUtils.getCurrentUserInfo()）
+        User currentUser = SessionUtils.getCurrentUserInfo();
+
+        // 获取当前登录用户的ID（如果用户未登录，currentUser 可能为 null，需要处理）
+        Long currentUserId = (currentUser != null) ? currentUser.getId() : null;
         // 检查用户名变更（仅当传入的 user 对象包含 username 时才记录）
         if (updatedUser.getUsername() != null && !originalUser.getUsername().equals(updatedUser.getUsername())) {
             operationLogAUService.logOperation(
@@ -239,7 +244,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
 
         return loggedInUser;
     }
-
     @Override
     public void sendRegisterCode(String email) {
         //校验邮箱不为空
@@ -478,5 +482,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements IU
         if (existingUser != null) {
             throw new IllegalArgumentException("该邮箱已被注册");
         }
+    }
+
+    @Override
+    public List<User> listAllUsers() {
+        return list(); // MyBatis-Plus 提供的 list() 方法
     }
 }
