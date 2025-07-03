@@ -36,6 +36,30 @@ public class CommentController {
         private String content;
         private String category;
 
+        public int getUid() {
+            return uid;
+        }
+
+        public void setUid(int uid) {
+            this.uid = uid;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public String getCategory() {
+            return category;
+        }
+
+        public void setCategory(String category) {
+            this.category = category;
+        }
+
     }
     @PostMapping("addComment")
     public JsonResponse addComment(@RequestBody CommentController.AddCommentRequest request) throws Exception {
@@ -59,6 +83,22 @@ public class CommentController {
     public static class UpdateReplyRequest {
         private int id;
         private String reply;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
+
+        public String getReply() {
+            return reply;
+        }
+
+        public void setReply(String reply) {
+            this.reply = reply;
+        }
     }
     @PostMapping("updateReply")
     public JsonResponse updateReply(@RequestBody CommentController.UpdateReplyRequest request) throws Exception {
@@ -69,6 +109,14 @@ public class CommentController {
     @Data
     public static class UpdateStatusRequest {
         private int id;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
     }
     @PostMapping("updateStatus")
     public JsonResponse updateStatus(@RequestBody CommentController.UpdateStatusRequest request) throws Exception {

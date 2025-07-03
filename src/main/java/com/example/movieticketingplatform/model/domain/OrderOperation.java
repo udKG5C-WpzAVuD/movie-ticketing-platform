@@ -58,5 +58,59 @@ public class OrderOperation implements Serializable {
     @TableField("operation_time")
     private LocalDateTime operationTime;
 
+    public Integer getId() {
+        return id;
+    }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
+
+    public Byte getOperatorType() {
+        return operatorType;
+    }
+
+    public void setOperatorType(Byte operatorType) {
+        this.operatorType = operatorType;
+    }
+
+    public Integer getOperatorId() {
+        return operatorId;
+    }
+
+    public void setOperatorId(Integer operatorId) {
+        this.operatorId = operatorId;
+    }
+
+    public String getOperation() {
+        return operation;
+    }
+
+    public void setOperation(String operation) {
+        this.operation = operation;
+    }
+
+    public String getOperationDesc() {
+        return operationDesc;
+    }
+
+    public void setOperationDesc(String operationDesc) {
+        this.operationDesc = operationDesc;
+    }
+
+    public LocalDateTime getOperationTime() {
+        return operationTime;
+    }
+
+    public void setOperationTime(LocalDateTime operationTime) {
+        this.operationTime = operationTime;
+    }
 }
