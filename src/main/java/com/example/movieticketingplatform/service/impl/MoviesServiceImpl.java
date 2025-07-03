@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 @Service
 public class MoviesServiceImpl extends ServiceImpl<MoviesMapper, Movies> implements IMoviesService {
@@ -26,6 +28,9 @@ public class MoviesServiceImpl extends ServiceImpl<MoviesMapper, Movies> impleme
         return page;
     }
 
-
+    @Override
+    public List<Movies> listAllMovies() {
+        return list();
+    }
 }
 

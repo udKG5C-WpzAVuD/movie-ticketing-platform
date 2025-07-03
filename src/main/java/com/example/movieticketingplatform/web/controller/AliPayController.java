@@ -83,11 +83,9 @@ public class AliPayController {
             for (String name : requestParams.keySet()) {
                 params.put(name, request.getParameter(name));
             }
-
             String tradeNo = params.get("out_trade_no"); // 商户订单号
             String alipayTradeNo = params.get("trade_no"); // 支付宝交易号（关键）
             String gmtPayment = params.get("gmt_payment");
-
             // 支付宝验签
             if (Factory.Payment.Common().verifyNotify(params)) {
                 // 更新订单：使用支付宝交易号作为paymentTransactionId

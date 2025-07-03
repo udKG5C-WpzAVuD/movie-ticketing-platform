@@ -34,4 +34,6 @@ public interface IOrdersService extends IService<Orders> {
      * @return 退款记录（包含退款状态）
      */
     RefundRecords handleRefund(String orderNo, BigDecimal refundAmount, String refundReason);
+
+    List<Orders> getBysid(Long sessionId);
 }

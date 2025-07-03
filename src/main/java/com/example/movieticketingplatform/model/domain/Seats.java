@@ -48,5 +48,43 @@ public class Seats implements Serializable {
     @TableField("update_time")
     private LocalDateTime updateTime;
 
+    public Integer getSeatId() {
+        return seatId;
+    }
 
+    public void setSeatId(Integer seatId) {
+        this.seatId = seatId;
+    }
+
+    public Long getSessionId() {
+        return sessionId;
+    }
+
+    public void setSessionId(Long sessionId) {
+        this.sessionId = sessionId;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Boolean getIsOccupied() {
+        return isOccupied;
+    }
+
+    public void setIsOccupied(Boolean occupied) {
+        isOccupied = occupied;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
+    }
 }
