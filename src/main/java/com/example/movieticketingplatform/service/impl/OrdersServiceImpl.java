@@ -1,5 +1,7 @@
 package com.example.movieticketingplatform.service.impl;
 
+import com.alipay.api.AlipayClient;
+import com.alipay.api.DefaultAlipayClient;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.request.AlipayTradeRefundRequest;
@@ -148,12 +150,14 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
         return baseMapper.selectByOrderNo(orderNo);}
     @Transactional(rollbackFor = Exception.class)
     public boolean cancelOrder(String orderNo) {
+        System.out.println("接收的订单号：" + orderNo); // 新增日志
         // 1. 查询订单
         LambdaQueryWrapper<Orders> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Orders::getOrderNo, orderNo);
         Orders order = ordersMapper.selectOne(queryWrapper);
 
         if (order == null) {
+            System.out.println("订单不存在：" + orderNo); // 新增日志
             throw new RuntimeException("订单不存在");
         }
 
@@ -199,46 +203,59 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
     @Override
     public RefundRecords handleRefund(String orderNo, BigDecimal refundAmount, String refundReason) {
-        // 1. 创建退款记录（初始状态：退款中）
         RefundRecords refundRecord = createRefundRecord(orderNo, refundAmount, refundReason);
 
         try {
-            // 2. 校验订单状态（仅"已支付"订单可退款）
+            // 1. 查询订单（确保支付成功且有支付宝交易号）
             Orders order = getOne(new LambdaQueryWrapper<Orders>().eq(Orders::getOrderNo, orderNo));
             if (order == null) {
                 throw new RuntimeException("订单不存在");
             }
-            if (order.getOrderStatus() != 1) { // 1-已支付（参考之前的状态定义）
-                throw new RuntimeException("仅已支付订单可申请退款（当前状态：" + getOrderStatusDesc(order.getOrderStatus()) + "）");
+            if (order.getOrderStatus() != 1) {
+                throw new RuntimeException("仅已支付订单可退款（当前状态：" + getOrderStatusDesc(order.getOrderStatus()) + "）");
+            }
+            // 关键：验证支付时返回的支付宝交易号是否存在（支付成功必有的字段）
+            if (order.getPaymentTransactionId() == null || order.getPaymentTransactionId().trim().isEmpty()) {
+                throw new RuntimeException("订单未关联支付宝交易号，无法退款");
             }
 
-            // 3. 校验退款金额（不超过订单总金额）
+            // 2. 校验退款金额
             if (refundAmount.compareTo(order.getTotalAmount()) > 0) {
                 throw new RuntimeException("退款金额不能超过订单总金额（订单金额：" + order.getTotalAmount() + "）");
             }
 
-            // 4. 调用支付宝退款接口（修改：捕获AlipayApiException）
+            // 3. 释放座位（复用取消订单的逻辑，已验证正确）
+            releaseSeatsInBatch(order);
+
+            // 4. 调用支付宝退款接口（严格复用支付的配置）
             AlipayTradeRefundResponse refundResponse;
             try {
-                refundResponse = callAlipayRefund(orderNo, refundAmount);
+                // 复用支付时的客户端配置（网关、超时、密钥完全一致）
+                refundResponse = callAlipayRefund(order.getPaymentTransactionId(), refundAmount);
             } catch (AlipayApiException e) {
-                throw new RuntimeException("支付宝API调用失败", e);
+                throw new RuntimeException("支付宝退款接口调用失败：" + e.getErrMsg(), e);
             }
 
-            // 5. 退款成功：更新订单状态（可选：标记订单为"已退款"或"部分退款"）
-            updateOrderAfterRefund(order, refundAmount);
+            // 5. 验证退款响应
+            if (!refundResponse.isSuccess()) {
+                throw new RuntimeException("支付宝退款失败：" + refundResponse.getMsg() + "（错误码：" + refundResponse.getCode() + "）");
+            }
 
-            // 6. 更新退款记录状态为"成功"
+            // 6. 更新订单状态
+            order.setOrderStatus((byte) 3);
+            order.setUpdateTime(LocalDateTime.now());
+            updateById(order);
+
+            // 7. 更新退款记录
             refundRecord.setRefundStatus(RefundStatusEnum.SUCCESS.getCode());
             refundRecord.setCompleteTime(LocalDateTime.now());
             refundRecordsService.updateById(refundRecord);
 
         } catch (Exception e) {
-            // 异常处理：更新退款记录状态为"失败"
             refundRecord.setRefundStatus(RefundStatusEnum.FAIL.getCode());
-            refundRecord.setRefundReason(refundRecord.getRefundReason() + "（失败原因：" + e.getMessage() + "）");
+            refundRecord.setRefundReason(refundReason + "（失败原因：" + e.getMessage() + "）");
             refundRecordsService.updateById(refundRecord);
-            throw e; // 抛出异常，让Controller层捕获并返回错误信息
+            throw e;
         }
 
         return refundRecord;
@@ -266,9 +283,14 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
     }
 
     // 辅助方法：调用支付宝退款接口
-    private AlipayTradeRefundResponse callAlipayRefund(String orderNo, BigDecimal refundAmount) throws AlipayApiException {
-        com.alipay.api.AlipayClient alipayClient = new com.alipay.api.DefaultAlipayClient(
-                "https://openapi-sandbox.dl.alipaydev.com/gateway.do",
+    // 辅助方法：调用支付宝退款接口（修正类型声明）
+    private AlipayTradeRefundResponse callAlipayRefund(String alipayTradeNo, BigDecimal refundAmount) throws AlipayApiException {
+        // 使用与支付完全一致的沙箱网关（带sandbox）
+        String gatewayUrl = "https://openapi-sandbox.dl.alipaydev.com/gateway.do";
+        System.out.println("退款网关地址：" + gatewayUrl); // 验证是否正确
+
+        DefaultAlipayClient alipayClient = new DefaultAlipayClient(
+                gatewayUrl,
                 aliPayConfig.getAppId(),
                 aliPayConfig.getAppPrivateKey(),
                 "JSON",
@@ -276,13 +298,23 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
                 aliPayConfig.getAlipayPublicKey(),
                 "RSA2"
         );
+        alipayClient.setConnectTimeout(30000);
+        alipayClient.setReadTimeout(30000);
+
+        // 临时移除notifyUrl（避免HTTP协议导致的网关替换）
         AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        // request.setNotifyUrl(aliPayConfig.getNotifyUrl()); // 注释掉，先测试退款功能
+
         request.setBizContent("{" +
-                "\"out_trade_no\":\"" + orderNo + "\"," +
-                "\"refund_amount\":\"" + refundAmount + "\"," +
-                "\"refund_reason\":\"用户申请退款\"" +
+                "\"trade_no\":\"" + alipayTradeNo + "\"," +
+                "\"refund_amount\":\"" + refundAmount.setScale(2) + "\"," +
+                "\"refund_reason\":\"用户主动退单\"," +
+                "\"out_request_no\":\"" + generateRefundNo() + "\"" +
                 "}");
-        return alipayClient.execute(request);
+
+        AlipayTradeRefundResponse response = alipayClient.execute(request);
+        System.out.println("退款响应：" + response.getBody());
+        return response;
     }
 
     // 辅助方法：退款后更新订单（根据实际业务需求调整）
@@ -311,6 +343,23 @@ public class OrdersServiceImpl extends ServiceImpl<OrdersMapper, Orders> impleme
             case 2: return "已取消";
             case 3: return "已退款";
             default: return "未知状态";
+        }
+    }
+    private void releaseSeatsInBatch(Orders order) {
+        if (order.getCode() != null && !order.getCode().isEmpty()) {
+            String[] seatCodes = order.getCode().split(",");
+
+            Seats updateSeat = new Seats();
+            updateSeat.setIsOccupied(false);
+            updateSeat.setUpdateTime(LocalDateTime.now());
+
+            int updateCount = seatsMapper.update(updateSeat, new QueryWrapper<Seats>()
+                    .eq("session_id", order.getSessionId())
+                    .in("code", seatCodes));
+
+            if (updateCount != seatCodes.length) {
+                throw new RuntimeException("座位释放失败，请重试");
+            }
         }
     }
 }

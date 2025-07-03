@@ -32,13 +32,13 @@ public class AliPayConfig {
         // 设置参数（全局只需设置一次）
         Config config = new Config();
         config.protocol = "https";
-        config.gatewayHost = "openapi.alipaydev.com";
+        config.gatewayHost = "openapi-sandbox.dl.alipaydev.com"; // 新增sandbox，沙箱正确主机名
         config.signType = "RSA2";
         config.appId = this.appId;
         config.merchantPrivateKey = this.appPrivateKey;
         config.alipayPublicKey = this.alipayPublicKey;
-        config.notifyUrl = this.notifyUrl;
+        config.notifyUrl = this.notifyUrl; // 暂时保留，后续处理
         Factory.setOptions(config);
-        System.out.println("=======支付宝SDK初始化成功=======");
+        System.out.println("=======支付宝沙箱SDK初始化成功=======");
     }
 }

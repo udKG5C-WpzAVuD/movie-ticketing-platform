@@ -58,7 +58,7 @@ public class AliPayController {
                 + "\"total_amount\":\"" + aliPay.getTotalAmount() + "\","
                 + "\"subject\":\"" + aliPay.getSubject() + "\","
                 + "\"product_code\":\"FAST_INSTANT_TRADE_PAY\","
-                + "\"timeout_express\":\"30m\"}"); // 关键：设置30分钟超时
+                + "\"timeout_express\":\"15m\"}"); // 关键：设置30分钟超时
         String form = "";
         try {
             // 调用SDK生成表单

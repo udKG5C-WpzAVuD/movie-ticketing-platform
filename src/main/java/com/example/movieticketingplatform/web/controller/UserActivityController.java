@@ -9,7 +9,10 @@ import com.example.movieticketingplatform.common.JsonResponse;
 import com.example.movieticketingplatform.service.IUserActivityService;
 import com.example.movieticketingplatform.model.domain.UserActivity;
 
+import java.math.BigDecimal;
 import java.util.List;
+
+import static com.baomidou.mybatisplus.extension.ddl.DdlScriptErrorHandler.PrintlnLogErrorHandler.log;
 
 
 @RestController
@@ -25,6 +28,36 @@ public class UserActivityController {
     public JsonResponse getUserActivity() throws Exception{
         List<UserActivity> userActivity = userActivityService.getUserActivity();
         return JsonResponse.success(userActivity);
+    }
+    /**
+     * 支付成功后更新用户购买活动
+     * @param userId 用户ID
+     * @param amount 订单金额
+     */
+    @PostMapping("/update-purchase")
+    public JsonResponse updatePurchaseActivity(
+            @RequestParam Long userId,
+            @RequestParam BigDecimal amount) {
+        try {
+            userActivityService.updatePurchaseActivity(userId, amount);
+            return JsonResponse.success("用户活动记录更新成功");
+        } catch (Exception e) {
+            log.error("更新用户购买活动失败", e);
+            return JsonResponse.failure("更新用户活动记录失败");
+        }
+    }
+    @PostMapping("/update-refund")
+    public JsonResponse updateRefundActivity(
+            @RequestParam Long userId,
+            @RequestParam BigDecimal amount
+    ){
+        try {
+            userActivityService.updateRefundActivity(userId, amount);
+            return JsonResponse.success("用户活动记录更新成功");
+        }catch (Exception e){
+            log.error("更新用户退款活动失败", e);
+            return JsonResponse.failure("更新用户活动记录失败");
+        }
     }
 }
 

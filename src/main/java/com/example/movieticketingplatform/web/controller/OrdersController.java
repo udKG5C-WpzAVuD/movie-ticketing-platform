@@ -67,13 +67,13 @@ public class OrdersController {
         List<Orders> orders= ordersService.list();
         return JsonResponse.success(orders);
     }
-    @PutMapping("refundOrder")
-    public JsonResponse refundOrders(@RequestParam Long id)throws Exception {
-        System.out.println("我来啦"+id);
-        Orders orders = ordersService.getById(id);
-        orders.setOrderStatus((byte) 3); // 强制转换为 byte
-        ordersService.updateById(orders);
-        return JsonResponse.success(orders);}
+    //@PutMapping("refundOrder")
+    //public JsonResponse refundOrders(@RequestParam Long id)throws Exception {
+        //System.out.println("我来啦"+id);
+       // Orders orders = ordersService.getById(id);
+       // orders.setOrderStatus((byte) 3); // 强制转换为 byte
+        //ordersService.updateById(orders);
+        //return JsonResponse.success(orders);}
     @PostMapping("/create")
     public JsonResponse<Orders> createOrder(@RequestBody Orders order) {
         try {
@@ -139,15 +139,15 @@ public class OrdersController {
             refundReason = StringUtils.isBlank(refundReason) ? "用户申请退款" : refundReason;
 
 
-            // 2. 调用服务层执行退款逻辑（核心）
+            // 调用服务层执行退款逻辑
             RefundRecords refundRecord = ordersService.handleRefund(orderNo, refundAmount, refundReason);
 
-
-            // 3. 根据退款结果返回响应
+            // 修改：使用现有重载方法
             if (RefundStatusEnum.SUCCESS.getCode().equals(refundRecord.getRefundStatus())) {
-                return JsonResponse.success("退款成功", refundRecord.getRefundNo()); // 返回退款单号
+                // 使用 success(R data, String message)
+                return JsonResponse.success(refundRecord, "退款成功");
             } else if (RefundStatusEnum.REFUNDING.getCode().equals(refundRecord.getRefundStatus())) {
-                return JsonResponse.success("退款申请已提交，处理中", refundRecord.getRefundNo());
+                return JsonResponse.success(refundRecord, "退款申请已提交，处理中");
             } else {
                 return JsonResponse.failure("退款失败：" + refundRecord.getRefundReason());
             }
