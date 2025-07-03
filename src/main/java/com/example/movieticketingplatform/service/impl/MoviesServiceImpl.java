@@ -8,6 +8,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * <p>
  * 电影信息表 服务实现类
@@ -32,6 +34,11 @@ public class MoviesServiceImpl extends ServiceImpl<MoviesMapper, Movies> impleme
         Page<Movies> page = new Page<>(pageDTO.getPageNum(),pageDTO.getPageSize());
         page = moviesMapper.pageList(page,m);
         return page;
+    }
+
+    @Override
+    public List<Movies> listAllMovies() {
+        return list();
     }
 }
 

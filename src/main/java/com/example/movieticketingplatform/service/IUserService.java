@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.movieticketingplatform.model.domain.dto.ResetPasswordDTO;
 import com.example.movieticketingplatform.model.domain.dto.UserRegisterDTO;
 
+import java.io.IOException;
+import java.util.List;
+
 
 public interface IUserService extends IService<User> {
 
@@ -42,4 +45,6 @@ public interface IUserService extends IService<User> {
      * @param resetPasswordDTO 包含邮箱、验证码、新密码
      */
     void resetPassword(ResetPasswordDTO resetPasswordDTO);
+
+    List<User> listAllUsers();
 }
