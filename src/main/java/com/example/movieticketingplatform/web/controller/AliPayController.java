@@ -1,6 +1,7 @@
 package com.example.movieticketingplatform.web.controller;
 
 
+import com.alipay.api.internal.util.AlipaySignature;
 import com.alipay.easysdk.factory.Factory;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.movieticketingplatform.common.config.AliPayConfig;
@@ -75,30 +76,43 @@ public class AliPayController {
 
     @PostMapping("/notify")
     public String payNotify(HttpServletRequest request) throws Exception {
-        if (request.getParameter("trade_status").equals("TRADE_SUCCESS")) {
+        if ("TRADE_SUCCESS".equals(request.getParameter("trade_status"))) {
             System.out.println("=========支付宝异步回调========");
 
+            // 1. 解析参数
             Map<String, String> params = new HashMap<>();
-            Map<String, String[]> requestParams = request.getParameterMap();
-            for (String name : requestParams.keySet()) {
-                params.put(name, request.getParameter(name));
-            }
+            request.getParameterMap().forEach((key, values) -> params.put(key, values[0]));
 
             String tradeNo = params.get("out_trade_no"); // 商户订单号
-            String alipayTradeNo = params.get("trade_no"); // 支付宝交易号（关键）
+            String alipayTradeNo = params.get("trade_no"); // 支付宝交易号
             String gmtPayment = params.get("gmt_payment");
 
-            // 支付宝验签
-            if (Factory.Payment.Common().verifyNotify(params)) {
-                // 更新订单：使用支付宝交易号作为paymentTransactionId
+            // 2. 旧版SDK验签（与支付时的SDK一致）
+            boolean signVerified = AlipaySignature.rsaCheckV1(
+                    params,
+                    aliPayConfig.getAlipayPublicKey(), // 支付宝公钥
+                    CHARSET, // utf-8
+                    SIGN_TYPE // RSA2
+            );
+
+            if (signVerified) { // 验签成功才更新订单
                 Orders order = new Orders();
                 order.setOrderNo(tradeNo);
-                order.setOrderStatus((byte) 1);  // 已支付
-                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss[.SSS]");
-                order.setPaymentTime(LocalDateTime.parse(gmtPayment, formatter));
-                order.setPaymentTransactionId(alipayTradeNo); // 修正：使用支付宝交易号
-                order.setPaymentMethod("alipay"); // 明确支付方式
-                ordersService.updateOrderStatus(order);
+                order.setOrderStatus((byte) 1); // 已支付
+                // 兼容多种时间格式（避免解析失败）
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                try {
+                    order.setPaymentTime(LocalDateTime.parse(gmtPayment, formatter));
+                } catch (Exception e) {
+                    order.setPaymentTime(LocalDateTime.now()); // 解析失败时用当前时间
+                    System.out.println("支付时间解析失败，使用当前时间：" + e.getMessage());
+                }
+                order.setPaymentTransactionId(alipayTradeNo);
+                order.setPaymentMethod("alipay");
+                ordersService.updateOrderStatus(order); // 执行状态更新
+            } else {
+                System.out.println("支付宝回调验签失败！");
+                return "fail"; // 验签失败，告知支付宝重新发送
             }
         }
         return "success";

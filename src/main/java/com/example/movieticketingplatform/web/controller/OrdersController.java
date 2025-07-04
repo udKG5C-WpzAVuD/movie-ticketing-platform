@@ -73,13 +73,13 @@ public class OrdersController {
         List<Orders> orders= ordersService.list();
         return JsonResponse.success(orders);
     }
-    //@PutMapping("refundOrder")
-    //public JsonResponse refundOrders(@RequestParam Long id)throws Exception {
-        //System.out.println("我来啦"+id);
-       // Orders orders = ordersService.getById(id);
-       // orders.setOrderStatus((byte) 3); // 强制转换为 byte
-        //ordersService.updateById(orders);
-        //return JsonResponse.success(orders);}
+    @PutMapping("refundOrders")
+    public JsonResponse refundOrders(@RequestParam Long id)throws Exception {
+        System.out.println("我来啦"+id);
+        Orders orders = ordersService.getById(id);
+        orders.setOrderStatus((byte) 3); // 强制转换为 byte
+        ordersService.updateById(orders);
+        return JsonResponse.success(orders);}
     @PostMapping("/create")
     public JsonResponse<Orders> createOrder(@RequestBody Orders order) {
         try {
